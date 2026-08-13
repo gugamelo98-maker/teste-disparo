@@ -83,7 +83,7 @@ footer{text-align:center;font-family:var(--mono);font-size:11px;color:var(--mute
     <div class="section-body">
       <div class="field">
         <label>URL do webhook</label>
-        <input id="n8nUrl" value="https://speedybarracuda-n8n.cloudfy.live/webhook/disparar">
+        <input id="n8nUrl" value="https://speedybarracuda-n8n.cloudfy.live/webhook/disparar-v3">
         <p class="hint">A chave da Evolution fica só no n8n, nunca no navegador.</p>
       </div>
     </div>
@@ -250,8 +250,13 @@ async function dispatch(){
 
     if(data && Array.isArray(data) && data[0]){
       const r = data[0];
-      if(r.ok) addLog('ok', number, `Evolution respondeu ${r.status}`);
-      else addLog('err', number, `Evolution respondeu ${r.status} — ${String(r.detalhe).slice(0,200)}`);
+      if(r.ok && r.metodo === 'sendButtons'){
+        addLog('ok', number, 'Enviado com botão (sendButtons).');
+      }else if(r.ok){
+        addLog('warn', number, `${r.aviso || 'Enviado por método alternativo.'}`);
+      }else{
+        addLog('err', number, `Falhou (${r.metodo}, status ${r.status}) — ${String(r.detalhe).slice(0,200)}`);
+      }
     }else if(res.ok){
       addLog('ok', number, 'n8n aceitou o disparo.');
     }else{
