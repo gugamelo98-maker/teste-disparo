@@ -169,12 +169,10 @@ footer{
     </div>
     <div class="section-body">
       <div class="field">
-        <label>URL base do webhook n8n</label>
-        <input id="n8nUrl" placeholder="https://seu-n8n.exemplo.com/webhook" value="https://speedybarracuda-n8n.cloudfy.live/webhook">
-        <p class="hint">Sem barra no final. O painel completa com <code>/painel-disparo</code> e <code>/painel-verificar</code> automaticamente. A API key da Evolution fica só no n8n — nunca passa pelo navegador.</p>
+        <label>URL do webhook n8n</label>
+        <input id="n8nUrl" placeholder="https://seu-n8n.exemplo.com/webhook/disparar" value="https://speedybarracuda-n8n.cloudfy.live/webhook/disparar">
+        <p class="hint">A API key da Evolution fica só no n8n — nunca passa pelo navegador.</p>
       </div>
-      <button class="ghost" onclick="checkInstance()">Verificar instância</button>
-      <span id="checkResult" style="font-family:var(--mono);font-size:11px;margin-left:10px;color:var(--muted)"></span>
     </div>
   </div>
 
@@ -305,21 +303,6 @@ function addLog(ok, number, detail){
   box.prepend(item);
 }
 
-async function checkInstance(){
-  const base = document.getElementById('n8nUrl').value.replace(/\/$/, '');
-  const resultEl = document.getElementById('checkResult');
-  resultEl.textContent = 'verificando...';
-  try{
-    const res = await fetch(`${base}/painel-verificar`);
-    const data = await res.json().catch(() => ({}));
-    resultEl.textContent = res.ok ? `estado: ${data?.instance?.state || 'desconhecido'}` : `erro ${res.status}`;
-    resultEl.style.color = res.ok ? 'var(--green)' : 'var(--red)';
-  }catch(e){
-    resultEl.textContent = 'não foi possível conectar (verifique a URL do n8n)';
-    resultEl.style.color = 'var(--red)';
-  }
-}
-
 async function dispatch(){
   const base = document.getElementById('n8nUrl').value.replace(/\/$/, '');
   const number = document.getElementById('destNumber').value.trim();
@@ -336,7 +319,7 @@ async function dispatch(){
   const payload = buildPayload();
   setBusy(true);
   try{
-    const res = await fetch(`${base}/painel-disparo`, {
+    const res = await fetch(base, {
       method: 'POST',
       body: JSON.stringify(payload)
     });
